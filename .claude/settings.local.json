@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -l \"stitch_app_distribution_ecosystem.zip\")",
+      "Bash(unzip -o \"stitch_app_distribution_ecosystem.zip\" -d \"/tmp/stitch_extracted\")",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-git --no-src-dir --eslint --import-alias \"@/*\")"
+    ]
+  }
+}
