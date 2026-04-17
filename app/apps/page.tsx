@@ -46,6 +46,10 @@ function appAccent(app: PublicApp): string {
   return "from-[#111827] via-[#1f2937] to-[#4f46e5]";
 }
 
+function appCoverImage(app: PublicApp): string | null {
+  return app.logo_url || app.screenshots?.[0] || null;
+}
+
 export default async function AppsIndexPage({
   searchParams,
 }: AppsIndexPageProps) {
@@ -172,17 +176,36 @@ export default async function AppsIndexPage({
                   featured,
                 )} aspect-[16/10] shadow-[0_18px_50px_rgba(25,28,29,0.14)]`}
               >
-                {featured.screenshots?.[0] ? (
+                {appCoverImage(featured) ? (
                   <img
-                    src={featured.screenshots[0]}
+                    src={appCoverImage(featured) as string}
                     alt={featured.name}
-                    className="absolute inset-0 h-full w-full object-cover opacity-75"
+                    className="absolute inset-0 h-full w-full scale-125 object-cover blur-3xl opacity-80"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_30%)]" />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/22 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/72 via-black/28 to-black/62" />
+                {featured.screenshots?.[0] ? (
+                  <div className="absolute right-5 top-5 hidden w-[32%] min-w-[180px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/10 shadow-[0_18px_50px_rgba(25,28,29,0.2)] lg:block">
+                    <div className="aspect-[9/16]">
+                      <img
+                        src={featured.screenshots[0]}
+                        alt={`${featured.name} preview`}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
+                ) : featured.logo_url ? (
+                  <div className="absolute right-5 top-5 hidden h-28 w-28 overflow-hidden rounded-[1.5rem] bg-black/30 ring-1 ring-white/10 lg:block">
+                    <img
+                      src={featured.logo_url}
+                      alt={`${featured.name} logo`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
                 <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7">
                   <span className="mb-3 inline-flex w-fit rounded-full bg-white/12 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/85">
                     Editor&apos;s choice
