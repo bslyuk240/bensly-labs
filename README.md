@@ -62,6 +62,13 @@ If you are using Cloudflare R2 for APK storage, also set:
 - `S3_FORCE_PATH_STYLE=true`
 - `S3_PUBLIC_BASE_URL=https://<your-public-r2-domain-or-custom-domain>`
 
+For browser-to-R2 APK uploads, add a CORS rule on the R2 bucket that allows:
+
+- `PUT`
+- `GET`
+- `HEAD`
+- origin `https://benslylabs.skolahq.com`
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

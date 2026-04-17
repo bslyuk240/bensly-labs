@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 import { randomUUID } from "crypto";
@@ -20,6 +21,14 @@ type UploadResult = {
   provider: "s3" | "local";
 };
 
+type PresignedUploadResult = {
+  key: string;
+  url: string;
+  uploadUrl: string;
+  provider: "s3";
+  contentType: string;
+};
+
 function sanitizeFileName(name: string): string {
   return name
     .toLowerCase()
@@ -34,7 +43,7 @@ function buildKey(fileName: string, prefix: string): string {
   return `${prefix.replace(/\/+$/g, "")}/${Date.now()}-${id}-${cleanName}`;
 }
 
-function getRemoteConfig(): RemoteStorageConfig | null {
+export function getRemoteConfig(): RemoteStorageConfig | null {
   const bucket = process.env.S3_BUCKET?.trim();
   const region = process.env.S3_REGION?.trim() || "auto";
   const accessKeyId = process.env.S3_ACCESS_KEY_ID?.trim();
@@ -66,12 +75,50 @@ function resolvePublicUrl(config: RemoteStorageConfig, key: string): string {
   }
 
   if (config.endpoint?.includes("amazonaws.com")) {
-    return `${config.endpoint.replace(/\/+$/g, "")}/${config.bucket}/${key}`;
+  return `${config.endpoint.replace(/\/+$/g, "")}/${config.bucket}/${key}`;
   }
 
   throw new Error(
     "Set S3_PUBLIC_BASE_URL to a public bucket URL or custom domain for object storage."
   );
+}
+
+export async function createPresignedUpload(
+  fileName: string,
+  contentType: string
+): Promise<PresignedUploadResult> {
+  const config = getRemoteConfig();
+  if (!config) {
+    throw new Error("Remote object storage is not configured.");
+  }
+
+  const key = buildKey(fileName, config.prefix);
+  const client = new S3Client({
+    region: config.region,
+    credentials: {
+      accessKeyId: config.accessKeyId,
+      secretAccessKey: config.secretAccessKey,
+    },
+    endpoint: config.endpoint,
+    forcePathStyle: config.forcePathStyle,
+  });
+
+  const command = new PutObjectCommand({
+    Bucket: config.bucket,
+    Key: key,
+    ContentType: contentType || "application/vnd.android.package-archive",
+    CacheControl: "public, max-age=31536000, immutable",
+  });
+
+  const uploadUrl = await getSignedUrl(client, command, { expiresIn: 15 * 60 });
+
+  return {
+    key,
+    url: resolvePublicUrl(config, key),
+    uploadUrl,
+    provider: "s3",
+    contentType: contentType || "application/vnd.android.package-archive",
+  };
 }
 
 async function uploadRemote(file: File, config: RemoteStorageConfig): Promise<UploadResult> {

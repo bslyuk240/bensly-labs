@@ -64,27 +64,65 @@ export default function VersionsPage() {
     setUploading(true);
     setMessage("");
 
-    const payload = new FormData();
-    payload.append("file", file);
+    try {
+      const initRes = await fetch("/api/uploads/apk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: file.name,
+          contentType: file.type || "application/vnd.android.package-archive",
+          size: file.size,
+        }),
+      });
 
-    const res = await fetch("/api/uploads/apk", {
-      method: "POST",
-      body: payload,
-    });
+      const initData = await initRes.json().catch(() => null);
+      if (!initRes.ok) {
+        throw new Error(initData?.error || "Failed to initialize APK upload");
+      }
 
-    setUploading(false);
+      let uploadedPath = "";
 
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      throw new Error(data?.error || "Failed to upload APK");
+      if (initData?.mode === "direct") {
+        const putRes = await fetch(initData.uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type":
+              initData.contentType || file.type || "application/vnd.android.package-archive",
+          },
+          body: file,
+        });
+
+        if (!putRes.ok) {
+          throw new Error("Failed to upload APK to object storage");
+        }
+
+        uploadedPath = initData.path as string;
+      } else {
+        const payload = new FormData();
+        payload.append("file", file);
+
+        const res = await fetch("/api/uploads/apk", {
+          method: "POST",
+          body: payload,
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          throw new Error(data?.error || "Failed to upload APK");
+        }
+
+        const data = await res.json();
+        uploadedPath = data.path as string;
+      }
+
+      setUploadName(file.name);
+      setForm((current) => ({ ...current, apk_path: uploadedPath, platform: "android" }));
+      setMessage(`Uploaded ${file.name}`);
+      window.setTimeout(() => setMessage(""), 2000);
+      return uploadedPath;
+    } finally {
+      setUploading(false);
     }
-
-    const data = await res.json();
-    setUploadName(file.name);
-    setForm((current) => ({ ...current, apk_path: data.path, platform: "android" }));
-    setMessage(`Uploaded ${file.name}`);
-    window.setTimeout(() => setMessage(""), 2000);
-    return data.path as string;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -236,7 +274,7 @@ export default function VersionsPage() {
                     onChange={(e) => void handleSelectedFile(e.target.files?.[0] || null)}
                   />
                   <p className="text-xs font-semibold text-slate-600">Drop APK here or click to browse</p>
-                  <p className="text-xs text-slate-400">The file is uploaded to S3 or R2 before the version is saved.</p>
+                  <p className="text-xs text-slate-400">The browser uploads the APK directly to S3 or R2, then we save the version record.</p>
                   {uploading && <p className="text-xs font-semibold text-indigo-500">Uploading APK...</p>}
                   {!uploading && uploadName && <p className="text-xs font-semibold text-emerald-600">Uploaded: {uploadName}</p>}
                 </div>
