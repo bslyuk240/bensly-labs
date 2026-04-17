@@ -6,6 +6,9 @@ import Link from "next/link";
 
 export default function NewAppPage() {
   const router = useRouter();
+  const publicHost = (process.env.NEXT_PUBLIC_SITE_URL || "https://benslylabs.skolahq.com")
+    .replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -68,7 +71,7 @@ export default function NewAppPage() {
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">Slug *</label>
           <div className="flex items-center gap-2">
-            <span className="text-slate-400 text-sm">benslylabs.com/apps/</span>
+            <span className="text-slate-400 text-sm">{publicHost}/apps/</span>
             <input
               type="text"
               value={form.slug}

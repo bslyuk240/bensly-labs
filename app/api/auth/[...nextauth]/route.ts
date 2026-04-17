@@ -17,7 +17,7 @@ const handler = NextAuth({
           credentials?.username === validUsername &&
           credentials?.password === validPassword
         ) {
-          return { id: "1", name: "Admin", email: "admin@benslylabs.com", role: "platform_admin" };
+          return { id: "1", name: "Admin", email: "admin@benslylabs.skolahq.com", role: "platform_admin" };
         }
         return null;
       },

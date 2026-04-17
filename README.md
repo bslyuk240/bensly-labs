@@ -18,7 +18,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The public portal and admin shell use CSS font stacks so the app builds cleanly without depending on remote font fetches.
 
 ## Object Storage for APKs
 
@@ -39,6 +39,28 @@ Optional:
 - `S3_PREFIX=apks` to change the upload folder prefix
 
 If these values are not configured, uploads fall back to local disk in development only.
+
+## Vercel Environment Variables
+
+For production deploys on Vercel with the custom domain `https://benslylabs.skolahq.com`, set:
+
+- `NEXT_PUBLIC_SITE_URL=https://benslylabs.skolahq.com`
+- `NEXTAUTH_URL=https://benslylabs.skolahq.com`
+- `NEXTAUTH_SECRET=<strong-random-secret>`
+- `DATABASE_URL=<your-postgres-connection-string>`
+- `ADMIN_USERNAME=<admin-login>`
+- `ADMIN_PASSWORD=<admin-password>`
+- `IP_HASH_SALT=<random-salt-for-install-rate-limits>`
+
+If you are using Cloudflare R2 for APK storage, also set:
+
+- `S3_BUCKET`
+- `S3_ACCESS_KEY_ID`
+- `S3_SECRET_ACCESS_KEY`
+- `S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com`
+- `S3_REGION=auto`
+- `S3_FORCE_PATH_STYLE=true`
+- `S3_PUBLIC_BASE_URL=https://<your-public-r2-domain-or-custom-domain>`
 
 ## Learn More
 
