@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -10,6 +10,7 @@ type App = {
   name: string;
   description: string | null;
   logo_url: string | null;
+  banner_url: string | null;
   screenshots: string[];
   status: string;
   rating: number;
@@ -33,12 +34,15 @@ export default function AppDetailPage() {
     name: "",
     description: "",
     logo_url: "",
+    banner_url: "",
     screenshotsText: "",
     status: "draft" as App["status"],
   });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [message, setMessage] = useState("");
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch(`/api/apps/${id}`)
@@ -49,6 +53,7 @@ export default function AppDetailPage() {
           name: data.name,
           description: data.description || "",
           logo_url: data.logo_url || "",
+          banner_url: data.banner_url || "",
           screenshotsText: Array.isArray(data.screenshots) ? data.screenshots.join("\n") : "",
           status: data.status,
         });
@@ -65,6 +70,7 @@ export default function AppDetailPage() {
         name: form.name,
         description: form.description,
         logo_url: form.logo_url,
+        banner_url: form.banner_url,
         screenshots: parseScreenshotUrls(form.screenshotsText),
         status: form.status,
       }),
@@ -122,6 +128,44 @@ export default function AppDetailPage() {
           <input type="url" value={form.logo_url} onChange={(e) => setForm(f => ({ ...f, logo_url: e.target.value }))}
             className="w-full px-4 py-3 rounded-xl bg-slate-50 text-slate-900 border border-slate-200 focus:border-indigo-400 focus:outline-none"
             placeholder="https://example.com/logo.png" />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-semibold text-slate-700">Featured Banner</label>
+            <span className="text-xs text-slate-400">Recommended: 1600 × 1000 px (PNG/JPG/WebP)</span>
+          </div>
+          {form.banner_url && (
+            <div className="mb-3 overflow-hidden rounded-xl aspect-[16/10] bg-slate-100">
+              <img src={form.banner_url} alt="Banner preview" className="h-full w-full object-cover" />
+            </div>
+          )}
+          <div className="flex gap-2">
+            <input type="url" value={form.banner_url} onChange={(e) => setForm(f => ({ ...f, banner_url: e.target.value }))}
+              className="flex-1 px-4 py-3 rounded-xl bg-slate-50 text-slate-900 border border-slate-200 focus:border-indigo-400 focus:outline-none text-sm"
+              placeholder="https://example.com/banner.png" />
+            <button type="button" onClick={() => bannerInputRef.current?.click()}
+              disabled={bannerUploading}
+              className="px-4 py-3 rounded-xl text-sm font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors disabled:opacity-50 whitespace-nowrap"
+              style={{ border: "1px solid rgba(79,70,229,0.25)" }}>
+              {bannerUploading ? "Uploading…" : "Upload"}
+            </button>
+          </div>
+          <input ref={bannerInputRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setBannerUploading(true);
+              const fd = new FormData();
+              fd.append("file", file);
+              const res = await fetch("/api/uploads/image", { method: "POST", body: fd });
+              const data = await res.json();
+              setBannerUploading(false);
+              if (res.ok) setForm(f => ({ ...f, banner_url: data.path }));
+              else setMessage(data.error || "Upload failed");
+              e.target.value = "";
+            }} />
+          <p className="text-xs text-slate-400 mt-1">This image fills the featured card on the public apps listing page.</p>
         </div>
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-1.5">Sample Images / Screenshots</label>

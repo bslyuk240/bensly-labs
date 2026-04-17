@@ -7,6 +7,7 @@ type PublicApp = {
   name: string;
   description: string | null;
   logo_url: string | null;
+  banner_url: string | null;
   screenshots: string[] | null;
   status: string;
   rating: number;
@@ -70,6 +71,7 @@ export default async function AppsIndexPage({
         a.name,
         a.description,
         a.logo_url,
+        a.banner_url,
         a.screenshots,
         a.status,
         a.rating::float AS rating,
@@ -168,7 +170,7 @@ export default async function AppsIndexPage({
             </Link>
           </div>
 
-          <div className="mt-5 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             {featured ? (
               <Link
                 href={`/apps/${featured.slug}`}
@@ -176,7 +178,13 @@ export default async function AppsIndexPage({
                   featured,
                 )} aspect-[16/10] shadow-[0_18px_50px_rgba(25,28,29,0.14)]`}
               >
-                {appCoverImage(featured) ? (
+                {featured.banner_url ? (
+                  <img
+                    src={featured.banner_url}
+                    alt={featured.name}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : appCoverImage(featured) ? (
                   <img
                     src={appCoverImage(featured) as string}
                     alt={featured.name}
@@ -186,38 +194,20 @@ export default async function AppsIndexPage({
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_30%)]" />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-br from-black/72 via-black/28 to-black/62" />
-                {featured.screenshots?.[0] ? (
-                  <div className="absolute right-5 top-5 hidden w-[32%] min-w-[180px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/10 shadow-[0_18px_50px_rgba(25,28,29,0.2)] lg:block">
-                    <div className="aspect-[9/16]">
-                      <img
-                        src={featured.screenshots[0]}
-                        alt={`${featured.name} preview`}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
-                ) : featured.logo_url ? (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                {!featured.banner_url && featured.logo_url && (
                   <div className="absolute right-5 top-5 hidden h-28 w-28 overflow-hidden rounded-[1.5rem] bg-black/30 ring-1 ring-white/10 lg:block">
-                    <img
-                      src={featured.logo_url}
-                      alt={`${featured.name} logo`}
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={featured.logo_url} alt={`${featured.name} logo`} className="h-full w-full object-cover" />
                   </div>
-                ) : null}
-                <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-7">
-                  <span className="mb-3 inline-flex w-fit rounded-full bg-white/12 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/85">
+                )}
+                <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-6">
+                  <span className="mb-2 inline-flex w-fit rounded-full bg-white/12 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/85">
                     Editor&apos;s choice
                   </span>
-                  <h3 className="max-w-md text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  <h3 className="max-w-md text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
                     {featured.name}
                   </h3>
-                  <p className="mt-2 max-w-lg text-sm leading-6 text-white/80 sm:text-base">
-                    {featured.description ||
-                      "A high-contrast featured app card that leads directly into the install flow."}
-                  </p>
-                  <span className="mt-5 inline-flex w-fit rounded-xl bg-[#4f46e5] px-5 py-3 text-sm font-bold text-white shadow-[0_14px_32px_rgba(79,70,229,0.35)]">
+                  <span className="mt-4 inline-flex w-fit rounded-xl bg-[#4f46e5] px-5 py-2.5 text-sm font-bold text-white shadow-[0_14px_32px_rgba(79,70,229,0.35)]">
                     Get Started
                   </span>
                 </div>
@@ -234,37 +224,33 @@ export default async function AppsIndexPage({
               </div>
             )}
 
-            <div className="grid gap-5">
+            <div className="grid gap-3">
               {secondary.length > 0 ? (
                 secondary.map((app) => (
                   <article
                     key={app.id}
-                    className="flex items-center justify-between gap-4 rounded-[1.5rem] bg-[#f3f4f5] p-5 shadow-[0_12px_30px_rgba(25,28,29,0.04)]"
+                    className="flex items-center justify-between gap-3 rounded-[1.5rem] bg-[#f3f4f5] p-4 shadow-[0_12px_30px_rgba(25,28,29,0.04)]"
                   >
-                    <div className="flex min-w-0 items-center gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div
-                        className={`flex h-20 w-20 flex-none items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${appAccent(
+                        className={`flex h-16 w-16 flex-none items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br ${appAccent(
                           app,
-                        )} shadow-[0_12px_30px_rgba(25,28,29,0.10)]`}
+                        )} shadow-[0_10px_24px_rgba(25,28,29,0.10)]`}
                       >
                         {app.logo_url ? (
                           <img src={app.logo_url} alt={app.name} className="h-full w-full object-cover" />
                         ) : (
-                          <span className="text-2xl font-extrabold text-white">
+                          <span className="text-xl font-extrabold text-white">
                             {app.name.charAt(0).toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h3 className="truncate text-xl font-extrabold tracking-tight text-[#191c1d]">
+                        <h3 className="truncate text-base font-extrabold tracking-tight text-[#191c1d]">
                           {app.name}
                         </h3>
-                        <p className="mt-1 text-sm text-[#464555]">
-                          {appCategory(app)} - {app.description || "Fast install and simple discovery."}
-                        </p>
-                        <div className="mt-2 flex items-center gap-2 text-sm">
-                          <span className="font-semibold text-[#3525cd]">Rating {app.rating}</span>
-                        </div>
+                        <p className="mt-0.5 text-sm text-[#777587]">{appCategory(app)}</p>
+                        <p className="mt-0.5 text-xs font-semibold text-[#3525cd]">Rating {app.rating}</p>
                       </div>
                     </div>
                     <Link

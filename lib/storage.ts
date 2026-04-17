@@ -120,16 +120,27 @@ async function uploadLocal(file: File): Promise<UploadResult> {
 
 export async function uploadApkAsset(file: File): Promise<UploadResult> {
   const remoteConfig = getRemoteConfig();
-
-  if (remoteConfig) {
-    return uploadRemote(file, remoteConfig);
-  }
-
+  if (remoteConfig) return uploadRemote(file, remoteConfig);
   if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "Object storage is not configured. Set S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, and S3_PUBLIC_BASE_URL."
-    );
+    throw new Error("Object storage is not configured. Set S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, and S3_PUBLIC_BASE_URL.");
   }
-
   return uploadLocal(file);
+}
+
+export async function uploadImageAsset(file: File): Promise<UploadResult> {
+  const remoteConfig = getRemoteConfig();
+  if (remoteConfig) {
+    return uploadRemote(file, { ...remoteConfig, prefix: "images" });
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Object storage is not configured.");
+  }
+  const key = buildKey(file.name, "images");
+  const { mkdir, writeFile } = await import("fs/promises");
+  const { join } = await import("path");
+  const dir = join(process.cwd(), "public", "uploads", "images");
+  await mkdir(dir, { recursive: true });
+  const filePath = join(dir, key.split("/").pop()!);
+  await writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+  return { key, url: `/uploads/images/${key.split("/").pop()}`, provider: "local" };
 }

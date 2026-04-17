@@ -7,6 +7,7 @@ const updateSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   description: z.string().optional(),
   logo_url: z.string().optional(),
+  banner_url: z.string().optional(),
   screenshots: z.array(z.string().url()).optional(),
   status: z.enum(["draft", "beta", "live"]).optional(),
   rating: z.number().min(0).max(5).optional(),
@@ -57,13 +58,14 @@ export async function PUT(
     return NextResponse.json({ error: result.error.flatten() }, { status: 400 });
   }
 
-  const { name, description, logo_url, screenshots, status, rating } = result.data;
+  const { name, description, logo_url, banner_url, screenshots, status, rating } = result.data;
 
   const rows = await sql`
     UPDATE apps SET
       name = COALESCE(${name ?? null}, name),
       description = COALESCE(${description ?? null}, description),
       logo_url = COALESCE(${logo_url ?? null}, logo_url),
+      banner_url = COALESCE(${banner_url ?? null}, banner_url),
       screenshots = COALESCE(${screenshots ?? null}, screenshots),
       status = COALESCE(${status ?? null}, status),
       rating = COALESCE(${rating ?? null}, rating)
