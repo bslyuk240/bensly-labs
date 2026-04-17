@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-headline: "Manrope", sans-serif;
+  --font-body: "Manrope", sans-serif;
+  --font-label: "Manrope", sans-serif;
+
+  --color-surface-container-lowest: var(--ds-surface-container-lowest);
+  --color-background: var(--ds-background);
+  --color-surface: var(--ds-surface);
+  --color-surface-dim: var(--ds-surface-dim);
+  --color-surface-container-low: var(--ds-surface-container-low);
+  --color-surface-container: var(--ds-surface-container);
+  --color-surface-container-high: var(--ds-surface-container-high);
+  --color-surface-container-highest: var(--ds-surface-container-highest);
+  --color-surface-variant: var(--ds-surface-variant);
+  --color-surface-bright: var(--ds-surface-bright);
+  --color-on-surface: var(--ds-on-surface);
+  --color-on-background: var(--ds-on-background);
+  --color-on-surface-variant: var(--ds-on-surface-variant);
+  --color-primary: var(--ds-primary);
+  --color-primary-container: var(--ds-primary-container);
+  --color-primary-fixed: var(--ds-primary-fixed);
+  --color-primary-fixed-dim: var(--ds-primary-fixed-dim);
+  --color-inverse-primary: var(--ds-inverse-primary);
+  --color-secondary: var(--ds-secondary);
+  --color-secondary-container: var(--ds-secondary-container);
+  --color-secondary-fixed: var(--ds-secondary-fixed);
+  --color-secondary-fixed-dim: var(--ds-secondary-fixed-dim);
+  --color-tertiary: var(--ds-tertiary);
+  --color-tertiary-container: var(--ds-tertiary-container);
+  --color-outline: var(--ds-outline);
+  --color-outline-variant: var(--ds-outline-variant);
+  --color-inverse-surface: var(--ds-inverse-surface);
+  --color-inverse-on-surface: var(--ds-inverse-on-surface);
+  --color-error: var(--ds-error);
+  --color-error-container: var(--ds-error-container);
+  --color-on-error: var(--ds-on-error);
+  --color-on-error-container: var(--ds-on-error-container);
+  --color-on-primary: var(--ds-on-primary);
+  --color-on-primary-container: var(--ds-on-primary-container);
+  --color-on-secondary: var(--ds-on-secondary);
+  --color-on-secondary-container: var(--ds-on-secondary-container);
+  --color-on-tertiary: var(--ds-on-tertiary);
+  --color-on-tertiary-container: var(--ds-on-tertiary-container);
+  --color-surface-tint: var(--ds-surface-tint);
+
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark theme — public & analytics portals */
+.dark {
+  --ds-surface-container-lowest: #0a0e18;
+  --ds-background: #0f131d;
+  --ds-surface: #0f131d;
+  --ds-surface-dim: #0f131d;
+  --ds-surface-container-low: #171b26;
+  --ds-surface-container: #1c1f2a;
+  --ds-surface-container-high: #262a35;
+  --ds-surface-container-highest: #313540;
+  --ds-surface-variant: #313540;
+  --ds-surface-bright: #353944;
+  --ds-on-surface: #dfe2f1;
+  --ds-on-background: #dfe2f1;
+  --ds-on-surface-variant: #c7c4d8;
+  --ds-primary: #c3c0ff;
+  --ds-primary-container: #4f46e5;
+  --ds-primary-fixed: #e2dfff;
+  --ds-primary-fixed-dim: #c3c0ff;
+  --ds-inverse-primary: #4d44e3;
+  --ds-secondary: #4ae176;
+  --ds-secondary-container: #00b954;
+  --ds-secondary-fixed: #6bff8f;
+  --ds-secondary-fixed-dim: #4ae176;
+  --ds-tertiary: #ffb695;
+  --ds-tertiary-container: #a44100;
+  --ds-outline: #918fa1;
+  --ds-outline-variant: #464555;
+  --ds-inverse-surface: #dfe2f1;
+  --ds-inverse-on-surface: #2c303b;
+  --ds-error: #ffb4ab;
+  --ds-error-container: #93000a;
+  --ds-on-error: #690005;
+  --ds-on-error-container: #ffdad6;
+  --ds-on-primary: #1d00a5;
+  --ds-on-primary-container: #dad7ff;
+  --ds-on-secondary: #003915;
+  --ds-on-secondary-container: #004119;
+  --ds-on-tertiary: #571f00;
+  --ds-on-tertiary-container: #ffd2be;
+  --ds-surface-tint: #c3c0ff;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.glass-panel {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100dvh;
 }
